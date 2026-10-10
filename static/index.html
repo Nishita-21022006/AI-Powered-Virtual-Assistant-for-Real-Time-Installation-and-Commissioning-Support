@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installation Assistant</title>
+<style>
+  :root {
+    --bg:#f6f6f4; --panel:#fff; --side:#f0f0ed; --ink:#191917; --muted:#73736d;
+    --line:#e4e4df; --accent:#2f5aa8; --warn:#9c4119; --warn-bg:#fdf3ee;
+    --ok:#2a6b43; --me:#2f5aa8; --me-ink:#fff; --hover:#e8e8e3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#131316; --panel:#1c1c20; --side:#171719; --ink:#ececeb; --muted:#9a9a94;
+      --line:#2e2e36; --accent:#89a9e8; --warn:#e09a6f; --warn-bg:#2b2018;
+      --ok:#79c296; --me:#2f5aa8; --me-ink:#fff; --hover:#24242a;
+    }
+  }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; }
+  body {
+    background:var(--bg); color:var(--ink); display:flex;
+    font:15px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+
+  /* ---- sidebar ---- */
+  aside {
+    width:260px; flex:0 0 260px; background:var(--side); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; height:100vh;
+  }
+  .newbtn {
+    margin:12px; padding:9px 12px; border:1px solid var(--line); background:var(--panel);
+    color:var(--ink); border-radius:9px; cursor:pointer; font:inherit; font-size:13.5px;
+    font-weight:550; text-align:left; display:flex; align-items:center; gap:8px;
+  }
+  .newbtn:hover { border-color:var(--accent); color:var(--accent); }
+  .histhead { font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+              color:var(--muted); padding:4px 18px; }
+  #hist { flex:1; overflow-y:auto; padding:2px 8px 12px; }
+  .hitem {
+    display:flex; align-items:center; gap:6px; padding:8px 10px; border-radius:8px;
+    cursor:pointer; font-size:13px; color:var(--ink);
+  }
+  .hitem:hover { background:var(--hover); }
+  .hitem.active { background:var(--hover); font-weight:550; }
+  .hitem span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .hitem button {
+    opacity:0; border:0; background:none; color:var(--muted); cursor:pointer;
+    font-size:15px; line-height:1; padding:2px 4px; border-radius:4px; font-family:inherit;
+  }
+  .hitem:hover button { opacity:1; }
+  .hitem button:hover { color:var(--warn); }
+  .sidefoot { border-top:1px solid var(--line); padding:10px 12px; }
+  .docbtn {
+    width:100%; font-size:12.5px; color:var(--accent); cursor:pointer; border:1px solid var(--line);
+    background:var(--panel); padding:7px 11px; border-radius:8px; font-family:inherit;
+  }
+  .meta { color:var(--muted); font-size:11px; margin-top:8px; text-align:center;
+          font-variant-numeric:tabular-nums; }
+
+  /* ---- main ---- */
+  main { flex:1; display:flex; flex-direction:column; height:100vh; min-width:0; }
+  .topbar { display:none; }
+  #chat { flex:1; overflow-y:auto; }
+  .inner { max-width:760px; margin:0 auto; padding:24px 20px 8px; }
+
+  .intro { color:var(--muted); font-size:14px; padding:40px 0 8px; }
+  .intro h2 { color:var(--ink); font-size:19px; margin:0 0 8px; letter-spacing:-.01em; }
+  .chips { display:flex; gap:7px; flex-wrap:wrap; margin-top:18px; }
+  .chips button {
+    background:var(--panel); color:var(--ink); border:1px solid var(--line);
+    padding:8px 13px; font-size:13px; border-radius:99px; cursor:pointer; font-family:inherit;
+  }
+  .chips button:hover { border-color:var(--accent); color:var(--accent); }
+
+  .row { display:flex; margin:16px 0; }
+  .row.me { justify-content:flex-end; }
+  .bubble { max-width:90%; padding:11px 15px; border-radius:15px; }
+  .me .bubble { background:var(--me); color:var(--me-ink); border-bottom-right-radius:5px; }
+  .bot .bubble { background:var(--panel); border:1px solid var(--line); border-bottom-left-radius:5px; }
+  .bot .bubble ol, .bot .bubble ul { margin:8px 0; padding-left:22px; }
+  .bot .bubble li { margin:6px 0; }
+  .lead { font-size:21px; font-weight:650; letter-spacing:-.01em; margin:2px 0 6px; }
+  .para { margin:6px 0; }
+  .cite { color:var(--accent); font-size:11.5px; white-space:nowrap; opacity:.85; }
+  .wbox {
+    background:var(--warn-bg); border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);
+    border-left:3px solid var(--warn); color:var(--warn); border-radius:7px;
+    padding:9px 12px; margin:12px 0 2px; font-size:13.5px; font-weight:500;
+  }
+  .refusal { color:var(--muted); }
+  .refusal strong { color:var(--ink); font-weight:600; display:block; margin-bottom:3px; }
+  details.src { margin-top:12px; border-top:1px solid var(--line); padding-top:8px; }
+  details.src > summary { cursor:pointer; font-size:12px; color:var(--muted); list-style:none; user-select:none; }
+  details.src > summary::-webkit-details-marker { display:none; }
+  details.src > summary::before { content:"▸ "; }
+  details.src[open] > summary::before { content:"▾ "; }
+  .s { margin:10px 0 0; padding-left:11px; border-left:2px solid var(--line); }
+  .s-h { font-size:12px; color:var(--accent); font-weight:600; }
+  .s-b { font-size:12.5px; color:var(--muted); white-space:pre-wrap; max-height:4.2em; overflow:hidden; }
+  .s.open .s-b { max-height:20em; overflow:auto; }
+  .s button { background:none; border:0; color:var(--accent); font-size:11.5px; cursor:pointer; padding:2px 0; font-family:inherit; }
+  .warnflag { color:var(--warn); font-size:11px; font-weight:600; }
+  .tim { font-size:11px; color:var(--muted); margin-top:9px; opacity:.6; font-variant-numeric:tabular-nums; }
+  .typing { color:var(--muted); font-size:14px; font-style:italic; }
+
+  footer { border-top:1px solid var(--line); background:var(--panel); padding:12px 20px 14px; }
+  .fwrap { max-width:760px; margin:0 auto; }
+  form { display:flex; gap:8px; }
+  input[type=text] {
+    flex:1; padding:12px 14px; border:1px solid var(--line); border-radius:10px;
+    background:var(--bg); color:var(--ink); font:inherit;
+  }
+  input[type=text]:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+  button.send { padding:12px 20px; border:0; border-radius:10px; background:var(--accent);
+                color:#fff; font:inherit; font-weight:550; cursor:pointer; }
+  button.send:disabled { opacity:.45; cursor:default; }
+  .disclaimer { color:var(--muted); font-size:11.5px; text-align:center; margin-top:9px; }
+
+  dialog { border:1px solid var(--line); border-radius:12px; background:var(--panel);
+           color:var(--ink); padding:0; max-width:560px; width:92%; }
+  dialog::backdrop { background:rgba(0,0,0,.45); }
+  .dlg { padding:18px 20px; }
+  .dlg h3 { margin:0 0 4px; font-size:16px; }
+  .dlg p { color:var(--muted); font-size:13px; margin:0 0 14px; }
+  .doclist { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+  .doc { border:1px solid var(--line); border-radius:99px; padding:3px 10px; font-size:12px;
+         color:var(--muted); font-variant-numeric:tabular-nums; }
+  .uplabel { display:block; border:1.5px dashed color-mix(in srgb,var(--accent) 45%,transparent);
+             border-radius:9px; padding:16px; text-align:center; color:var(--accent); cursor:pointer; font-size:13.5px; }
+  #upstatus div { font-size:12.5px; padding:3px 0; }
+  .u-ok{color:var(--ok);} .u-skip{color:var(--muted);} .u-bad{color:var(--warn);}
+  .dlg .close { margin-top:14px; width:100%; padding:9px; border:1px solid var(--line);
+                background:var(--bg); color:var(--ink); border-radius:8px; cursor:pointer; font:inherit; }
+
+  @media (max-width: 760px) {
+    aside { position:fixed; left:0; top:0; z-index:20; transform:translateX(-100%);
+            transition:transform .18s ease; box-shadow:0 0 30px rgba(0,0,0,.2); }
+    aside.open { transform:none; }
+    .topbar { display:flex; align-items:center; gap:10px; padding:10px 14px;
+              border-bottom:1px solid var(--line); background:var(--panel); }
+    .topbar button { border:1px solid var(--line); background:var(--panel); color:var(--ink);
+                     border-radius:8px; padding:6px 10px; cursor:pointer; font:inherit; }
+    .inner { padding:16px 14px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<aside id="side">
+  <button class="newbtn" id="newchat">＋&nbsp; New conversation</button>
+  <div class="histhead">History</div>
+  <div id="hist"></div>
+  <div class="sidefoot">
+    <button class="docbtn" id="opendocs">Manuals</button>
+    <div class="meta" id="meta">connecting…</div>
+  </div>
+</aside>
+
+<main>
+  <div class="topbar">
+    <button id="burger">☰</button>
+    <strong style="font-size:14px">Installation Assistant</strong>
+  </div>
+  <div id="chat"><div class="inner" id="inner"></div></div>
+  <footer>
+    <div class="fwrap">
+      <form id="f">
+        <input type="text" id="q" placeholder="Ask about wiring, fault codes, mounting, parameters…" autocomplete="off">
+        <button class="send" id="go" type="submit">Send</button>
+      </form>
+      <div class="disclaimer">Supplements the official documentation — always verify against the manual before acting on site.</div>
+    </div>
+  </footer>
+</main>
+
+<dialog id="docs">
+  <div class="dlg">
+    <h3>Indexed manuals</h3>
+    <p>Upload a revised PDF to update the knowledge base. Re-uploading the same filename supersedes the old revision.</p>
+    <div class="doclist" id="doclist">loading…</div>
+    <label class="uplabel">
+      <input type="file" id="up" accept="application/pdf" multiple hidden>
+      + Add or update manuals (PDF)
+    </label>
+    <div id="upstatus"></div>
+    <button class="close" id="closedocs">Close</button>
+  </div>
+</dialog>
+
+<script>
+const chat=document.getElementById('chat'), inner=document.getElementById('inner');
+const qIn=document.getElementById('q'), go=document.getElementById('go');
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const scroll=()=>chat.scrollTop=chat.scrollHeight;
+
+/* ---------- conversation store ----------
+   Kept in localStorage: it is per-viewer, survives reloads, and needs no
+   backend. It does NOT sync across devices or browsers, and a cleared
+   site-data wipes it — when sessions need to be durable or shared, they
+   move to the sessions table the schema already defines. Every read and
+   write is guarded, because storage can be unavailable or throw in a
+   private window. */
+const KEY='ica.conversations.v1';
+let convos=[], currentId=null;
+
+function load(){ try{ convos=JSON.parse(localStorage.getItem(KEY))||[]; }catch{ convos=[]; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(convos.slice(0,60))); }catch{} }
+function current(){ return convos.find(c=>c.id===currentId); }
+
+function newConvo(){
+  currentId=String(Date.now());
+  convos.unshift({id:currentId, title:'New conversation', turns:[]});
+  save(); renderHist(); renderChat();
+  qIn.focus();
+}
+function titleFor(text){
+  const t=text.trim().replace(/\s+/g,' ');
+  return t.length>42 ? t.slice(0,42)+'…' : t;
+}
+
+function renderHist(){
+  const h=document.getElementById('hist');
+  if(!convos.length){ h.innerHTML='<div class="hitem" style="color:var(--muted)">no conversations yet</div>'; return; }
+  h.innerHTML=convos.map(c=>
+    `<div class="hitem${c.id===currentId?' active':''}" data-id="${c.id}">
+       <span>${esc(c.title)}</span><button title="Delete" data-del="${c.id}">×</button>
+     </div>`).join('');
+  h.querySelectorAll('.hitem').forEach(el=>{
+    el.onclick=e=>{
+      if(e.target.dataset.del) return;
+      currentId=el.dataset.id; renderHist(); renderChat();
+      document.getElementById('side').classList.remove('open');
+    };
+  });
+  h.querySelectorAll('[data-del]').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    convos=convos.filter(c=>c.id!==b.dataset.del);
+    if(currentId===b.dataset.del){ currentId=convos[0]?.id||null; }
+    save(); renderHist(); if(!currentId) newConvo(); else renderChat();
+  });
+}
+
+function renderChat(){
+  const c=current();
+  inner.innerHTML='';
+  if(!c || !c.turns.length){ showIntro(); return; }
+  c.turns.forEach(t=>{
+    addRow('me', esc(t.q));
+    const bot=addRow('bot', renderReply(t.a));
+    wireSources(bot);
+  });
+  scroll();
+}
+
+function showIntro(){
+  inner.innerHTML=`<div class="intro">
+    <h2>Ask about installation or commissioning</h2>
+    Answers come only from the indexed manuals, with the document, section and page
+    for every claim. If the manuals don’t cover it, it says so rather than guessing.
+    <div class="chips">
+      <button data-q="How do I mount the terminal on a wall?">How do I mount it on a wall?</button>
+      <button data-q="Is the USB-C port functional?">Is the USB-C port functional?</button>
+      <button data-q="The controller is mounted, but the bus communication is not working. What should I inspect?">Bus communication not working</button>
+      <button data-q="What is the warranty period and price of this unit?">Warranty &amp; price</button>
+    </div></div>`;
+  inner.querySelectorAll('.chips button').forEach(b=>
+    b.onclick=()=>{ qIn.value=b.dataset.q; document.getElementById('f').requestSubmit(); });
+}
+
+function addRow(who, html){
+  const r=document.createElement('div'); r.className='row '+who;
+  r.innerHTML=`<div class="bubble">${html}</div>`;
+  inner.appendChild(r); scroll(); return r;
+}
+
+document.getElementById('newchat').onclick=newConvo;
+document.getElementById('burger').onclick=()=>document.getElementById('side').classList.toggle('open');
+
+document.getElementById('f').onsubmit=async e=>{
+  e.preventDefault();
+  const question=qIn.value.trim(); if(!question) return;
+  if(!current()) newConvo();
+  const c=current();
+  const intro=inner.querySelector('.intro'); if(intro) intro.remove();
+  qIn.value=''; go.disabled=true;
+
+  addRow('me', esc(question));
+  const bot=addRow('bot', `<div class="typing">searching the manuals…</div>`);
+
+  try{
+    const res=await fetch('/query',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({question})});
+    const data=await res.json();
+    bot.querySelector('.bubble').innerHTML=renderReply(data);
+    wireSources(bot); scroll();
+    c.turns.push({q:question, a:data});
+    if(c.turns.length===1){ c.title=titleFor(question); renderHist(); }
+    save();
+  }catch(err){
+    bot.querySelector('.bubble').innerHTML=`<div class="refusal">Couldn’t reach the assistant: ${esc(err)}</div>`;
+  }finally{ go.disabled=false; qIn.focus(); }
+};
+
+function renderReply(d){
+  const out=[];
+  if(d.answer){ out.push(renderAnswer(d.answer)); }
+  else {
+    const nothing=!d.passages.length;
+    out.push(`<div class="refusal"><strong>${nothing
+      ? 'I don’t have documentation on that.'
+      : 'Not confident enough to answer.'}</strong>${nothing
+      ? 'The indexed manuals don’t cover this. I only answer installation and commissioning questions — for anything else, contact technical support.'
+      : 'Here are the closest sections — please read them and verify before acting.'}</div>`);
+  }
+  if(d.passages.length){
+    out.push(`<details class="src"${d.answer?'':' open'}>
+      <summary>${d.answer?`Sources (${d.passages.length})`:`Closest sections (${d.passages.length})`}</summary>`+
+      d.passages.map(p=>`<div class="s">
+        <div class="s-h">${esc(p.document)}${p.section?' · '+esc(p.section):''}${p.page!=null?' · p'+p.page:''}
+          ${p.has_warning?'<span class="warnflag">⚠ safety warning</span>':''}</div>
+        <div class="s-b">${esc(p.text)}</div>
+        <button type="button">show full passage</button>
+      </div>`).join('')+`</details>`);
+  }
+  const ms=Object.values(d.timings_ms||{}).reduce((a,b)=>a+b,0);
+  if(ms) out.push(`<div class="tim">answered in ${(ms/1000).toFixed(1)}s</div>`);
+  return out.join('');
+}
+
+function wireSources(scope){
+  scope.querySelectorAll('.s button').forEach(b=>b.onclick=()=>{
+    const s=b.closest('.s'); s.classList.toggle('open');
+    b.textContent=s.classList.contains('open')?'collapse':'show full passage';
+  });
+}
+
+function renderAnswer(text){
+  const lines=String(text).split('\n'); const out=[]; let list=null;
+  const close=()=>{ if(list){ out.push(`</${list}>`); list=null; } };
+  const cite=s=>s.replace(/\[([^\]]+)\]/g,'<span class="cite">[$1]</span>');
+  lines.forEach((raw,i)=>{
+    const line=raw.trim(); if(!line){ close(); return; }
+    if(/^WARNING:/i.test(line)){
+      close(); out.push(`<div class="wbox">⚠ ${cite(esc(line.replace(/^WARNING:\s*/i,'')))}</div>`); return;
+    }
+    const n=line.match(/^(\d+)[.)]\s+(.*)$/);
+    if(n){ if(list!=='ol'){ close(); out.push('<ol>'); list='ol'; } out.push(`<li>${cite(esc(n[2]))}</li>`); return; }
+    const b=line.match(/^[-•*]\s+(.*)$/);
+    if(b){ if(list!=='ul'){ close(); out.push('<ul>'); list='ul'; } out.push(`<li>${cite(esc(b[1]))}</li>`); return; }
+    close();
+    const bare=line.replace(/\[[^\]]+\]/g,'').trim();
+    out.push(`<div class="${i===0&&bare.length<60&&lines.length>1?'lead':'para'}">${cite(esc(line))}</div>`);
+  });
+  close(); return out.join('');
+}
+
+fetch('/health').then(r=>r.json()).then(s=>{
+  document.getElementById('meta').textContent = s.status==='ok'
+    ? `${s.chunks} passages · ${s.documents} manuals` : 'starting…';
+}).catch(()=>document.getElementById('meta').textContent='backend offline');
+
+const dlg=document.getElementById('docs');
+document.getElementById('opendocs').onclick=()=>{ loadDocs(); dlg.showModal(); };
+document.getElementById('closedocs').onclick=()=>dlg.close();
+function loadDocs(){
+  fetch('/documents').then(r=>r.json()).then(d=>{
+    const names=Object.keys(d.documents).sort();
+    document.getElementById('doclist').innerHTML=names.length
+      ? names.map(n=>`<span class="doc">${esc(n)} · ${d.documents[n].chunks}</span>`).join('')
+      : '<span class="doc">none indexed</span>';
+  }).catch(()=>{});
+}
+document.getElementById('up').onchange=async e=>{
+  const files=[...e.target.files]; if(!files.length) return;
+  const st=document.getElementById('upstatus');
+  st.innerHTML=`<div class="u-skip">parsing and embedding ${files.length} file(s)…</div>`;
+  const fd=new FormData(); files.forEach(f=>fd.append('files',f));
+  try{
+    const d=await (await fetch('/documents',{method:'POST',body:fd})).json();
+    st.innerHTML=d.files.map(f=>{
+      const c=f.status==='indexed'?'u-ok':f.status==='skipped'?'u-skip':'u-bad';
+      const x=f.status==='indexed'?` — ${f.chunks} passages, ${f.warnings} with warnings`:(f.detail?' — '+f.detail:'');
+      return `<div class="${c}">${esc(f.filename)}: ${f.status}${esc(x)}</div>`;
+    }).join('');
+    loadDocs();
+    fetch('/health').then(r=>r.json()).then(s=>
+      document.getElementById('meta').textContent=`${s.chunks} passages · ${s.documents} manuals`);
+  }catch(err){ st.innerHTML=`<div class="u-bad">upload failed: ${esc(err)}</div>`; }
+  e.target.value='';
+};
+
+load();
+currentId = convos[0]?.id || null;
+if(!currentId) newConvo(); else { renderHist(); renderChat(); }
+</script>
+</body>
+</html>

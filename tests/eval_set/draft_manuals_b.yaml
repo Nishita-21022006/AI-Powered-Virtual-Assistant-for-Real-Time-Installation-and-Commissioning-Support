@@ -1,0 +1,416 @@
+# Phase-0 evaluation set — batch B
+# Source documents (only these two):
+#   89470K2.GB0_V2.pdf  Systevo Electronic Module & Corridor Lamp, Installation Instruction, 11.2020
+#   89475A3.GB0.pdf     Systevo Room Terminal / Systevo Room Display, Installation and
+#                       commissioning instructions, 09.2022
+# Page numbers are the numbers printed in the document; in both PDFs these are
+# identical to the PDF page index (verified).
+# supporting_quote spans are copied verbatim, including the documents' own
+# typographical errors ("Operarting", "zo GND", "forLpresence", "the the").
+# Line wrapping inside a quote has been collapsed to single spaces; no word,
+# number or punctuation mark has been changed.
+
+- id: b001
+  question: "What wire size do the SEM terminals take?"
+  expected_answer: "Installation cables with a wire diameter of 0.6 mm or 0.8 mm. 0.6 mm is recommended for wiring in the room."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "2.1 Mounting"
+    page: 6
+  supporting_quote: "The connection terminals are suitable for installation cables with a wire diameter of 0.6mm / 0.8mm. A wire diameter of 0.6mm is recommended for wiring in the room."
+  category: wiring
+  in_scope: true
+  has_warning: true
+
+- id: b002
+  question: "Can I wire the module up with the power still on?"
+  expected_answer: "No. All assembly and installation work must be carried out with the device de-energized."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "2.1 Mounting"
+    page: 6
+  supporting_quote: "Carry out all assembly and installation work with the device de-energized."
+  category: installation
+  in_scope: true
+  has_warning: true
+
+- id: b003
+  question: "What test voltage do the connecting cables have to stand?"
+  expected_answer: "4 KV, according to DIN VDE 0834-1. The power supply for the devices may be carried in the same cable, observing the corresponding wire cross-section."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "1. General / Application)"
+    page: 4
+  supporting_quote: "According to DIN VDE 0834-1, connecting cables including laying must withstand a test voltage of 4 KV. The power supply for the devices can be carried in the same cable. Observe the corresponding wire cross-section!"
+  category: wiring
+  in_scope: true
+  has_warning: true
+
+- id: b004
+  question: "What size dowels for mounting the SEM on the wall?"
+  expected_answer: "5/6 mm dowels, in two holes drilled at the marked fastening points."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "2.3 Surface mounting"
+    page: 8
+  supporting_quote: "Drill two holes - according to the marked fastening points - and insert 5/6 mm dowels."
+  category: installation
+  in_scope: true
+
+- id: b005
+  question: "How far back do I strip the cable?"
+  expected_answer: "Strip the installation cables to approx. 120 mm, and strip the individual wires 5 mm."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "2.5 Cable routing when mounting on a flush-mounted installation box"
+    page: 8
+  supporting_quote: "Strip the installation cables to approx. 120 mm and strip individual wires 5 mm"
+  category: step-sequence
+  in_scope: true
+
+- id: b006
+  question: "Which side do the ward cables go, left or right?"
+  expected_answer: "Ward cabling (e.g. system cables) on the left, and the wires for the room cabling (DBUS, ABUS, IO) on the right."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "2.5 Cable routing when mounting on a flush-mounted installation box"
+    page: 8
+  supporting_quote: "Route the wires for the ward cabling (e.g. system cables on the left and the wires for the room cabling (DBUS, ABUS, IO) on the right"
+  category: wiring
+  in_scope: true
+
+- id: b007
+  question: "How big is the SRT and how big is the connection board behind it?"
+  expected_answer: "SRT and SRD are 100 x 152 x 15 mm (W x H x D); the SCB-RM and SCB-RU connection boards are 94 x 146 x 25.5 mm."
+  expected_source:
+    document: "89475A3.GB0.pdf"
+    section: "8 Technical data"
+    page: 29
+  supporting_quote: "Dimensions (W x H x D) 100 x 152 x 15 mm 94 x 146 x 25.5 mm"
+  category: parameter
+  in_scope: true
+  in_table: true
+
+- id: b008
+  question: "How do I get the nameplate off the holder without wrecking it?"
+  expected_answer: "Press lightly with a tool in the slot to release the lock, then pull the name tag off the holder. Without unlocking, the mechanism can be damaged if the nameplate is removed."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "2.12 Nameplate standalone mounting"
+    page: 12
+  supporting_quote: "With a tool in the slot, press lightly to release the lock and pull the name tag off the holder. Note: Without unlocking, the mechanism can be damaged if the nameplate is removed."
+  category: step-sequence
+  in_scope: true
+  has_warning: true
+
+- id: b009
+  question: "What size paper goes in the nameplate and what font size?"
+  expected_answer: "Paper dimensions 100 x 45 mm. Long text: text size 24 Pt; short text: text size 26 Pt."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "2.13 Lettering of the nameplate"
+    page: 12
+  supporting_quote: "Paper dimensions 100 x 45 mm Long text - Text size 24Pt Short text - Text size 26Pt"
+  category: parameter
+  in_scope: true
+
+- id: b010
+  question: "Which way round does the nameplate ribbon cable go?"
+  expected_answer: "Connect the ribbon cable to the connector on the PCBA board so that the blue marking on the connection cable matches the marking on the protective foil."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "2.11 Mounting the Nameplate at the SEM / SEM+ / SCL"
+    page: 11
+  supporting_quote: "Connect the the ribbon cable to the connector on the PCBA board as shown. The blue marking on the connection cable must match the marking on the protective foil."
+  category: step-sequence
+  in_scope: true
+
+- id: b011
+  question: "How long can a DBUS run be?"
+  expected_answer: "Up to 400 m, using twisted pair. Each DBUS host supports up to 4 DBUS devices, and star-shaped wiring is possible."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "3.8 Wiring terminals and their function:"
+    page: 17
+  supporting_quote: "DBUS: Twisted pair, max length up to 400 m. Each DBUS host supports up to 4 DBUS devices Star-shaped wiring possible."
+  category: wiring
+  in_scope: true
+  in_table: true
+
+- id: b012
+  question: "Do I need a repeater on the ZBUS and how far can it go?"
+  expected_answer: "ZBUS is twisted pair, max. length 2500 m, or max. 500 m without a repeater. It supports up to 127 ZBUS devices, with a repeater necessary after 64 devices. Star-shaped wiring is not allowed."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "3.8 Wiring terminals and their function:"
+    page: 17
+  supporting_quote: "ZBUS: Twisted pair, max. length 2500 m (max.500 m without repeater). The ZBUS supports up to 127 ZBUS devices (after 64 devices a repeater is necessary) Star-shaped wiring not allowed."
+  category: wiring
+  in_scope: true
+  in_table: true
+
+- id: b013
+  question: "How much current can the reassurance lamp output drive?"
+  expected_answer: "Max. 100 mA, open collector to GND. The input is a call circuit of 0 V~24 V +/- 10% DC."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "3.8 Wiring terminals and their function:"
+    page: 17
+  supporting_quote: "I/O Port: NC units can be connected I-> Call circuit in 0V~24V +/- 10% DC. O-> Output for reassurance lamp max. 100mA (open Collector zo GND)"
+  category: parameter
+  in_scope: true
+  in_table: true
+
+- id: b014
+  question: "What's the current limit on the bed power terminals?"
+  expected_answer: "Max. 2 A for all power supply terminals for BBUS + DBUS 1 + 2 together."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "3.8 Wiring terminals and their function:"
+    page: 17
+  supporting_quote: "Power supply for beds, max. 2A (all power supply terminals for BBUS + DBUS 1 + 2 together)"
+  category: parameter
+  in_scope: true
+  in_table: true
+
+- id: b015
+  question: "If I set the termination jumper on the ABUS, do I have to do the ZBUS as well?"
+  expected_answer: "Yes. If changes are made to the termination, these must always be made equally on ABUS and ZBUS."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "3.4 Jumper Settings"
+    page: 14
+  supporting_quote: "If changes are made to the termination, these must always be made equally on ABUS and ZBUS."
+  category: parameter
+  in_scope: true
+  has_warning: true
+
+- id: b016
+  question: "Is the termination switched on when it comes out of the box?"
+  expected_answer: "No. In the factory setting the termination is switched off, so that the SEM / SEM+ can be any participant on the ABUS / ZBUS."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "3.4 Jumper Settings"
+    page: 14
+  supporting_quote: "The jumpers for A and ZBUS enable termination of the respective data line. In the factory setting, the termination is switched off so that the SEM / SEM + can be any participant on the ABUS / ZBUS."
+  category: parameter
+  in_scope: true
+
+- id: b017
+  question: "There's no R-ABUS terminal on this module — is that normal?"
+  expected_answer: "Yes. The connection terminal marked R-ABUS is only inserted in the SEM+ version; it forwards audio information to audio-compatible components in the room."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "3.1 Variants (SEM / SEM + / SCL)"
+    page: 13
+  supporting_quote: "The connection terminal marked with R-ABUS is only inserted in the SEM + version and is used to forward audio information to audio-compatible components in the room."
+  category: compatibility
+  in_scope: true
+
+- id: b018
+  question: "Which I/O profile is the module set to from the factory?"
+  expected_answer: "Profile 2. Profiles 1 and 3 can only be selected in system environments from V12.xx onwards."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "3.9 Factory setting standard functions SEM / SEM+"
+    page: 18
+  supporting_quote: "For this purpose, the Systevo electronics modules are preconfigured ex works with a defined profile (Profile2) and can therefore also be used in system environments V05.xx / V10.xx / V11.xx as a replacement for previous electronics modules. Profiles 1 + 3 can only be selected in system environments from V12.xx onwards."
+  category: parameter
+  in_scope: true
+
+- id: b019
+  question: "On profile 2, what is I/O port 4 used for?"
+  expected_answer: "Input: Bed 1 call (RT). Output: presence 2 lamp (AL2)."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "3.9 Factory setting standard functions SEM / SEM+"
+    page: 18
+  supporting_quote: "4 I Input for Bed 1 call (RT) O Output forLpresence 2 lamp (AL2)"
+  category: parameter
+  in_scope: true
+  in_table: true
+
+- id: b020
+  question: "Replacing an EM 340 — does the SEM get picked up automatically?"
+  expected_answer: "No. Automatic integration is not possible; it must be done manually by ZBUS addressing (Service 65) and then creating the database (Service 63)."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "5.2 SEM / SEM + in V5.xx / V10.xx / V11.xx environments"
+    page: 28
+  supporting_quote: "When replacing a Systevo electronic module of the type EM 140/230/340 as well as a DZI, it should be noted that the automatic integration is not possible, but via the manual way of ZBUS addressing (Service 65) and subsequent creation of the database (Service 63)."
+  category: step-sequence
+  in_scope: true
+
+- id: b021
+  question: "What does the SEM show up as in cp99config?"
+  expected_answer: "As the room terminal ZT99."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "5.2 SEM / SEM + in V5.xx / V10.xx / V11.xx environments"
+    page: 28
+  supporting_quote: "An SEM / SEM + integrated in this way will appear in the configuration program cp99config as the room terminal ZT99."
+  category: compatibility
+  in_scope: true
+
+- id: b022
+  question: "Mixing SBU-M2 and SBU-DM2+ beds in one room — anything I must not set?"
+  expected_answer: 'The special parameter SF12 "Separate cancel push-button for bed" must not be set.'
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "1.2 Separate cancel push-button for bed"
+    page: 28
+  supporting_quote: 'In the case of mixed operation of bed units SBU-M2 / M5 with bed units SBU D2 / DM2 +, the special parameter SF12 "Separate cancel push-button for bed" must not be set.'
+  category: parameter
+  in_scope: true
+
+- id: b023
+  question: "What temperature range can the SEM work in?"
+  expected_answer: "Operating temperature +5 °C to +55 °C; storage temperature -20 °C to +70 °C."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "7. Specifications"
+    page: 30
+  supporting_quote: "Operarting Temperature +5°C .. +55°C Storage Temperature -20°C .. +70°C"
+  category: parameter
+  in_scope: true
+  in_table: true
+
+- id: b024
+  question: "How many wires can I put in one SEM screw terminal?"
+  expected_answer: "3 x 0,6 mm or 2 x 0,8 mm non-flexible wires."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "7. Specifications"
+    page: 30
+  supporting_quote: "Wiring terminals- max. No of wires to be inserted 3 x 0,6mm / 2.x 0,8mm (non-flexible wires)"
+  category: wiring
+  in_scope: true
+  in_table: true
+
+- id: b025
+  question: "How do I wipe the screen down without setting off a call?"
+  expected_answer: "Press and hold the arrow circle button for 3 s to start cleaning mode. For 15 s the surface can be cleaned without any operating functions or calls being triggered; the remaining time is shown on the display. Press and hold the circle button to exit early."
+  expected_source:
+    document: "89475A3.GB0.pdf"
+    section: "4 Operating menu"
+    page: 26
+  supporting_quote: "Pressing and holding (3s) the arrow circle button starts cleaning mode. During this period (15s), the surface can be cleaned without any operating functions or calls being triggered. The remaining time is shown on the display. Press and hold the circle button to exit cleaning mode early."
+  category: step-sequence
+  in_scope: true
+
+- id: b026
+  question: "Part number for the SEM with audio?"
+  expected_answer: "72591D — Systevo Electronic Module plus with Audio, short name SEM+."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "6. Scope of delivery / accessories"
+    page: 29
+  supporting_quote: "72591D Systevo Electronic Module plus with Audio SEM+"
+  category: compatibility
+  in_scope: true
+  in_table: true
+
+- id: b027
+  question: "How many things can I hang off one DBUS line?"
+  expected_answer: "Max. 4 DBUS components, of which max. 3 are of the same type, plus one further DBUS component of a different type."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "4.5 Combinations in the patient room"
+    page: 21
+  supporting_quote: "In compliance with the restrictions for operation with the DBUS (max. 4 DBUS components, of which max. 3 are of the same type plus another DBUS component of a different type on a DBUS line), the rooms are separated from the individual areas of door, bed and bathroom / WC assembled."
+  category: compatibility
+  in_scope: true
+
+- id: b028
+  question: "P4 bed variant — do I need anything extra?"
+  expected_answer: "Yes. A Systevo Audio Switch (SAS) must be provided for each DBUS, to switch between TV sound and discrete speech."
+  expected_source:
+    document: "89470K2.GB0_V2.pdf"
+    section: "4.4 PoC (P) variants:"
+    page: 21
+  supporting_quote: "P4 * - A Systevo Audio Switch (SAS) must be provided for each DBUS to switch between TV sound and discrete speech."
+  category: compatibility
+  in_scope: true
+  in_table: true
+
+- id: b029
+  question: "Where should the mode switch be on the SCB-RM out of the box?"
+  expected_answer: "Position 1, which is the standard default. Positions 2+3 are not supported at present."
+  expected_source:
+    document: "89475A3.GB0.pdf"
+    section: "2 Installation"
+    page: 8
+  supporting_quote: "By default, the mode switch is set to position 1 on the SCB-RM connection board, which corresponds to the standard. At present, positions 2+3 are not supported."
+  category: parameter
+  in_scope: true
+  has_warning: true
+
+- id: b030
+  question: "What happens if I get the polarity backwards on the terminal?"
+  expected_answer: "Faulty or reversed polarity wiring can lead to irreversible damage. Always make sure the poles are connected correctly."
+  expected_source:
+    document: "89475A3.GB0.pdf"
+    section: "3 Electrical connection"
+    page: 14
+  supporting_quote: "Always make sure that the poles are connected correctly. Faulty or reversed polarity wiring can lead to irreversible damage."
+  category: wiring
+  in_scope: true
+  has_warning: true
+
+- id: b031
+  question: "What cross-section can I land on the 24 V power-in terminal of the SCB-RM?"
+  expected_answer: "Mains power supply from the ward, 24 V max. 10 A; 2 wires of 1.5 mm² are possible per terminal."
+  expected_source:
+    document: "89475A3.GB0.pdf"
+    section: "3 Electrical connection"
+    page: 14
+  supporting_quote: "Mains power supply from the ward, 24 V max. 10 A 2 wires 1.5 mm² possible per terminal."
+  category: wiring
+  in_scope: true
+  in_table: true
+
+- id: b032
+  question: "How many devices on the R-ABUS and how long can it run?"
+  expected_answer: "Up to 6 devices, twisted wire, max. length 200 m."
+  expected_source:
+    document: "89475A3.GB0.pdf"
+    section: "3 Electrical connection"
+    page: 14
+  supporting_quote: "R-ABUS: Corridor audio data bus Use a twisted wire, max. length 200 m. The R-ABUS supports up to 6 devices."
+  category: wiring
+  in_scope: true
+  in_table: true
+
+- id: b033
+  question: "There's an old ZT99 board on the wall — can I put the SRT on it?"
+  expected_answer: "Yes, with the adapter plate 74920Z3, which screws the device onto the existing connection board."
+  expected_source:
+    document: "89475A3.GB0.pdf"
+    section: "2.3 Installation on existing connection board ZT95/ZT99"
+    page: 12
+  supporting_quote: "Instead of a ZT 95/99, there is an adapter plate (74920Z3) for screwing the device onto existing connection boards."
+  category: compatibility
+  in_scope: true
+
+- id: b034
+  question: "What's the document number for the electronics module installation instruction?"
+  expected_answer: "89470K2.GB0 — Installation Instruction Systevo Electronics Module and Room Lamp."
+  expected_source:
+    document: "89475A3.GB0.pdf"
+    section: "1.2 Associated documents"
+    page: 4
+  supporting_quote: "Installation Instruction Systevo Electronics Module and Room Lamp 89470K2.GB0"
+  category: compatibility
+  in_scope: true
+  in_table: true
+
+- id: b035
+  question: "How do I open the SRT housing to get it off the wall?"
+  expected_answer: "Use a suitable slotted screwdriver on the underside of the housing to press open the locking mechanism at the marked point, then disconnect the connecting plug to remove the front of the housing."
+  expected_source:
+    document: "89475A3.GB0.pdf"
+    section: "2.4 Removing the device"
+    page: 13
+  supporting_quote: "To open the housing, use a suitable slotted screwdriver on the underside of the housing to press open the locking mechanism at the marked point."
+  category: step-sequence
+  in_scope: true

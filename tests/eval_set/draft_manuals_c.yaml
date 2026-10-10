@@ -1,0 +1,408 @@
+# Phase-0 evaluation set - batch C (manuals)
+# Sources: 89490A1.GB0_V.pdf (Systevo Control IP+), 89500A2.GB0.pdf (Systevo
+# Information Display), 89500A6.GB0.pdf (Systevo Electronic Module IP).
+# Every supporting_quote below was checked verbatim against the PDF text layer.
+#
+# PAGE NUMBER CONVENTION: `page` is the page number PRINTED in the document
+# footer. For 89500A2.GB0.pdf and 89500A6.GB0.pdf printed page == PDF page
+# index. For 89490A1.GB0_V.pdf the cover is unnumbered, so printed page ==
+# PDF page index - 1 (e.g. printed page 20 is PDF page 21). The ingester must
+# record both or citations will be off by one for that document.
+
+- id: c001
+  question: "How wide is the information display?"
+  expected_answer: "855 mm wide x 155 mm high (front view). Depth is 66 mm."
+  expected_source:
+    document: "89500A2.GB0.pdf"
+    section: "2.1 Dimensions of the Information Display"
+    page: 6
+  supporting_quote: "Dimensions (W x H) = 855 mm x 155 mm"
+  category: installation
+  in_scope: true
+
+- id: c002
+  question: "What position is the mode switch in when the SINF comes out of the box?"
+  expected_answer: "Position 1. That is the standard setting on delivery."
+  expected_source:
+    document: "89500A2.GB0.pdf"
+    section: "3.3 Mode switch"
+    page: 10
+  supporting_quote: "This is set to position 1 as standard on delivery."
+  category: parameter
+  in_scope: true
+
+- id: c003
+  question: "How do I run the display and speaker test on the SINF?"
+  expected_answer: "Press and hold the service button for approx. 3 seconds. A beep sounds to indicate the start of test mode, TEST START appears followed by a countdown from 10 to 0, then a gong tests the audio and a display test is carried out."
+  expected_source:
+    document: "89500A2.GB0.pdf"
+    section: "3.5 Service button"
+    page: 10
+  supporting_quote: "Press and hold service button for approx. 3 seconds"
+  category: step-sequence
+  in_scope: true
+
+- id: c004
+  question: "Display is showing NO DATA - what does that mean?"
+  expected_answer: "There is no connection to the control panel."
+  expected_source:
+    document: "89500A2.GB0.pdf"
+    section: "4.1 Switching on the SINF"
+    page: 11
+  supporting_quote: "If there is no connection to the control panel, “NO DATA” will appear on the display."
+  category: fault-code
+  in_scope: true
+
+- id: c005
+  question: "Second display - do I need to order a patch lead or is one in the box?"
+  expected_answer: "One is supplied. The standard patch cord is included in 74659Z5 and is used to connect the first SINF to the second SINF."
+  expected_source:
+    document: "89500A2.GB0.pdf"
+    section: "3.2 Connection"
+    page: 9
+  supporting_quote: "The standard patch cord (included in 74659Z5) is used to connect the first SINF to the second SINF."
+  category: compatibility
+  in_scope: true
+
+- id: c006
+  question: "What wire sizes go into the SINF data terminals?"
+  expected_answer: "3 x 0.6 mm or 3 x 0.8 mm, no flexible wires."
+  expected_source:
+    document: "89500A2.GB0.pdf"
+    section: "7 Technical specifications"
+    page: 15
+  supporting_quote: "Connecting terminal data 3 x 0.6 mm or 3 x 0.8 mm (no flexible wires)"
+  category: wiring
+  in_scope: true
+  in_table: true
+
+- id: c007
+  question: "What temperature range can the information display run in?"
+  expected_answer: "Application temperature 5 degrees C to +40 degrees C."
+  expected_source:
+    document: "89500A2.GB0.pdf"
+    section: "7 Technical specifications"
+    page: 15
+  supporting_quote: "Application temperature 5°C – +40°C"
+  category: parameter
+  in_scope: true
+  in_table: true
+
+- id: c008
+  question: "Which manual covers commissioning the SINF into the system?"
+  expected_answer: "The SINF is integrated in the usual way (assign address, set up configuration, create database). For more information see the Commissioning Instructions 89440C4."
+  expected_source:
+    document: "89500A2.GB0.pdf"
+    section: "4.2 Commissioning"
+    page: 11
+  supporting_quote: "The SINF is integrated into the system in the usual way (assign address, set up configuration, create database). For more information, see the Commissioning Instructions (89440C4)."
+  category: step-sequence
+  in_scope: true
+
+- id: c009
+  question: "How do I get the SCIP+ off the DIN rail?"
+  expected_answer: "Use a screwdriver to pull the latch marked in blue in the direction marked and take the device off the DIN rail. Then close the lock again."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "3.1.2 Mounting on a DIN Rail:"
+    page: 7
+  supporting_quote: "Use a screwdriver to pull the latch marked in blue in the direction marked and place the device on or off the DIN rail. Then close the lock again."
+  category: step-sequence
+  in_scope: true
+
+- id: c010
+  question: "What do I set the coding switch to for the master?"
+  expected_answer: "Identifier 51. Set the SCIP+ as master with the rotary coding switch."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "4.2 Prepare the Workstation / Server"
+    page: 19
+  supporting_quote: "Set the SCIP + as master (identifier 51) with the rotary coding switch."
+  category: parameter
+  in_scope: true
+
+- id: c011
+  question: "SCIP+ will not come up, it just sits in fault. Could the addressing be wrong?"
+  expected_answer: "Yes. If the ID of the control center is not in the valid range, the control center cannot go into regular operation and remains inoperative in the disturbed state (fatal error)."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "4.3.1 Determination of the central identification with rotary coding switch"
+    page: 20
+  supporting_quote: "If the ID of the control center is not in the valid range, the control center cannot go into regular operation and remains inoperative in the disturbed state (fatal error)."
+  category: fault-code
+  in_scope: true
+
+- id: c012
+  question: "What order do I power things up in?"
+  expected_answer: "Switch on the devices in the order switch, SCIP+, workstation / server."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "4.2 Prepare the Workstation / Server"
+    page: 19
+  supporting_quote: "Switch on the devices in the order switch, SCIP+, workstation / server"
+  category: step-sequence
+  in_scope: true
+
+- id: c013
+  question: "On the SCIP+ service LEDs, is 1 the highest priority or the lowest?"
+  expected_answer: "1 is the highest and 9 is the lowest priority. If there are several events, the status with the highest priority is displayed."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "3.2.5 Service Button / Service LED"
+    page: 14
+  supporting_quote: "If there are several events, the status with the highest priority is displayed. (1 is the highest and 9 is the lowest priority."
+  category: fault-code
+  in_scope: true
+
+- id: c014
+  question: "Can I wire the fault relay straight into the building alarm panel?"
+  expected_answer: "Only if the connection meets the requirements of IEC 60601-1 and DIN VDE 0834-1. The separate electronic relay, item no. 89371D, meets those requirements."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "3.2.3 Fault relay"
+    page: 13
+  supporting_quote: "The separate electronic relay (item no. 89371D) meets the requirements of IEC 60601-1 and DIN VDE 0834-1."
+  category: compatibility
+  in_scope: true
+  has_warning: true
+
+- id: c015
+  question: "What size fuse goes in front of the SCIP+ power supply?"
+  expected_answer: "An on-site fuse of max. 10 A."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "3.2.4 Power supply"
+    page: 14
+  supporting_quote: "On-site fuse ( max. 10A)"
+  category: parameter
+  in_scope: true
+  in_table: true
+
+- id: c016
+  question: "What network cable do I need for the SCIP+?"
+  expected_answer: "Standard patch cables with at least Cat5."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "3.2.1 LAN connection (2xMOPP), networking of the zone controller"
+    page: 12
+  supporting_quote: "Standard patch cables with at least Cat5 are used for the LAN connection."
+  category: wiring
+  in_scope: true
+
+- id: c017
+  question: "What is the power terminal rated at on the SCIP+?"
+  expected_answer: "Max. 10 A, 2 x 1.5 mm2."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "9 Technical Data"
+    page: 31
+  supporting_quote: "Power wiring terminal Max.10A 2 x 1,5mm²"
+  category: wiring
+  in_scope: true
+  in_table: true
+
+- id: c018
+  question: "Can I keep the old SMCc controllers when I add a SCIP+?"
+  expected_answer: "Only if they are upgradeable. Zone controllers of the type SMCc (72700A1 / 72700B1) can be upgraded to the required version from Rev.AF from 01/30/2014."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "6 Expansion of systems with Systevo Control (SMCc)"
+    page: 29
+  supporting_quote: "Zone controller of the type SMCc (72700A1 / 72700B1) can be upgraded to the required version from Rev.AF from 01/30/2014"
+  category: compatibility
+  in_scope: true
+
+- id: c019
+  question: "I have to swap out the master controller - will that kill the licences?"
+  expected_answer: "Not if you convert one of the already installed slave zone controllers to the master zone controller and place the new SCIP+ as a slave zone controller. In this way, existing licenses remain unaffected."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "5 Replacement of a Systevo Control IP+"
+    page: 29
+  supporting_quote: "If the master zone controller has to be replaced, it is advisable to convert one of the already installed slave zone controller to the master zone controller and place the new SCIP+ as a slave zone controller."
+  category: step-sequence
+  in_scope: true
+
+- id: c020
+  question: "Which service menu function creates the database, and what is the telnet command?"
+  expected_answer: "Function 8 in the extended menu - Create Database, telnet command >makedb<."
+  expected_source:
+    document: "89490A1.GB0_V.pdf"
+    section: "3.2.8 Functions in the extended menu"
+    page: 18
+  supporting_quote: "Function 8 Create Database (>makedb<)"
+  category: parameter
+  in_scope: true
+  in_table: true
+
+- id: c021
+  question: "What size wall plugs for mounting the SEM-IP?"
+  expected_answer: "Wall plugs measuring 5 / 6 mm, in two holes drilled through the marked external fastening points. The suitable type of wall plugs and screws depends on the material of the mounting surface."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "3.3 Installation on a wall"
+    page: 17
+  supporting_quote: "Drill through the marks to create two holes and insert wall plugs measuring 5 / 6 mm."
+  category: installation
+  in_scope: true
+
+- id: c022
+  question: "How much cable do I leave in the box and how far do I strip the cores?"
+  expected_answer: "Strip the installation cables to approx. 120 mm and strip individual wires by 5 mm."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "3.5 Cable routing when mounting on a flush installation socket"
+    page: 18
+  supporting_quote: "Strip the installation cables to approx. 120 mm and strip individual wires by 5 mm"
+  category: step-sequence
+  in_scope: true
+
+- id: c023
+  question: "What height do I mount it at?"
+  expected_answer: "1.5 m to 1.7 m over the standing surface of the operator, in accordance with DIN VDE 0834."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "3.7 Mounting on installation socket (e.g. tunnel socket)"
+    page: 19
+  supporting_quote: "Keep the mounting height 1.5 m to 1.7 m over the operator’s standing surface in accordance with DIN VDE 0834"
+  category: installation
+  in_scope: true
+
+- id: c024
+  question: "How far can I run the DBUS?"
+  expected_answer: "Max. 400 m, using a twisted tone wire. 4 DBUS components are possible per DBUS, and radial and mixed cabling is possible (4 x 100 m)."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "5.4 Connecting terminals and their function"
+    page: 28
+  supporting_quote: "DBUS: Use a twisted tone wire, max. length 400 m."
+  category: wiring
+  in_scope: true
+  in_table: true
+
+- id: c025
+  question: "ZBUS length limit and how many devices before I need a repeater?"
+  expected_answer: "Max. length 2500 m, or max. 500 m without a repeater. The ZBUS supports up to 127 ZBUS devices; use repeaters after 64 devices. Radial cabling is not permitted."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "5.4 Connecting terminals and their function"
+    page: 28
+  supporting_quote: "ZBUS: Use a twisted tone wire, max. length 2500 m (without repeater max. 500 m). The ZBUS supports up to 127 ZBUS devices (use repeaters after 64 devices)."
+  category: wiring
+  in_scope: true
+  in_table: true
+
+- id: c026
+  question: "How much current can I pull off the bed supply terminals?"
+  expected_answer: "Max. 1.8 A, for all mains power terminals for DBUS 1+2 together."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "5.4 Connecting terminals and their function"
+    page: 28
+  supporting_quote: "Mains power for beds, max. 1.8 A"
+  category: parameter
+  in_scope: true
+  in_table: true
+
+- id: c027
+  question: "If I power the SEM-IP off PoE, how much is left for the room kit?"
+  expected_answer: "An output of 6.75 W, which corresponds to 24 V DC / 280 mA. The maximum output requirement must be observed and not exceeded."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "4.2 Mains power supply"
+    page: 24
+  supporting_quote: "An output of 6.75 W (corresponds to 24 V DC / 280 mA) is available to supply the components in the room."
+  category: parameter
+  in_scope: true
+
+- id: c028
+  question: "What does mode switch position 1 do on the SEM-IP?"
+  expected_answer: "The SEM-IP takes on the function of a room controller, with the IP address supplied via a DHCP server. This is the factory setting."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "4.3 Mode switch"
+    page: 25
+  supporting_quote: "If the mode switch is in position 1 (factory setting IP address via DHCP server), the SEM-IP will take on the function of a room controller."
+  category: parameter
+  in_scope: true
+
+- id: c029
+  question: "Do I need a licence to run the SEM-IP as a cluster controller?"
+  expected_answer: "Yes. The 79SW420 licence is required for the cluster controller function (mode switch position 2/3)."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "2.1.1 SEM-IP as a ward / cluster controller in mixed operation with SMCc / SCIP+"
+    page: 7
+  supporting_quote: "The 79SW420 licence is required for the cluster controller function (mode switch position 2/3)."
+  category: compatibility
+  in_scope: true
+
+- id: c030
+  question: "What test voltage do the connecting cables have to stand?"
+  expected_answer: "4 KV, in accordance with DIN VDE 0834-1, including the cable laying. The mains power for the devices can be supplied in the same cable, but the corresponding wire cross-sections must be noted."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "1 General / Application"
+    page: 4
+  supporting_quote: "In accordance with DIN VDE 0834-1, connecting cables (including cable laying) must be able to withstand a test voltage of 4 KV."
+  category: wiring
+  in_scope: true
+  has_warning: true
+
+- id: c031
+  question: "Can I open it up with the power still on?"
+  expected_answer: "No. All mounting and installation work must be carried out only when the device is disconnected from the power."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "3 Installation"
+    page: 15
+  supporting_quote: "All mounting and installation work must be carried out only when the device is disconnected from the power."
+  category: installation
+  in_scope: true
+  has_warning: true
+
+- id: c032
+  question: "How do I take the name plate off its bracket?"
+  expected_answer: "With a tool in the slot, press lightly to release the catch and pull the name plate off the holder. If you do not release the catch, the mechanism may be damaged."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "3.11 Mounting the name plate as an independent unit"
+    page: 22
+  supporting_quote: "If you do not release the catch, the mechanism may be damaged upon removing the name plate."
+  category: installation
+  in_scope: true
+  has_warning: true
+
+- id: c033
+  question: "What is the part number for the 500 metre drum of system cable?"
+  expected_answer: "89734AH - system cable, halogen-free, drum 500 m, 6-wire, with a proof voltage of 2 KV."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "4.1 Cable types"
+    page: 23
+  supporting_quote: "89734AH System cable, halogen-free (drum 500 m) for power supply, time multiplex and voice transmission, 6-wire, with a proof voltage of 2 KV."
+  category: compatibility
+  in_scope: true
+  in_table: true
+
+- id: c034
+  question: "What cross section do I need on the mains supply to the SEM-IP?"
+  expected_answer: "2 x 1.5 mm2."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "4.1 Cable types"
+    page: 23
+  supporting_quote: "The wire cross-section for the mains power supply must be 2 x 1.5 mm²."
+  category: wiring
+  in_scope: true
+
+- id: c035
+  question: "How does the SEM-IP get tied to a room name on site?"
+  expected_answer: "With the mobile commissioning application: after selecting the ward controller and the SEM-IP assigned to it, the QR code on the left side of the SEM-IP housing is read using a QR code scanner. The unique serial number of the device is linked to the room name."
+  expected_source:
+    document: "89500A6.GB0.pdf"
+    section: "6 Commissioning"
+    page: 35
+  supporting_quote: "the QR code on the left side of the SEM-IP housing is read using a QR code scanner. The unique serial number of the device is linked to the room name."
+  category: step-sequence
+  in_scope: true

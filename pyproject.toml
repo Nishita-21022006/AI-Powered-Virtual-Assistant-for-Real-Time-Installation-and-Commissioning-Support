@@ -1,0 +1,55 @@
+[project]
+name = "assistant"
+version = "0.0.0"
+description = "RAG assistant for installation and commissioning support"
+requires-python = ">=3.11"
+readme = "README.md"
+# Versions verified against the live PyPI index with `pip index versions`
+# on 2026-10-10, and the full set resolves cleanly under `pip install
+# --dry-run`. Not recalled from memory, and not taken from mirrors.
+# Caveat: that resolution ran under Python 3.13. Every package declares a
+# requires-python floor at or below 3.11, but re-run the dry-run in a 3.11
+# venv before committing a lockfile if 3.11 is the real target.
+dependencies = [
+    "fastapi==0.143.0",
+    "uvicorn[standard]==0.54.0",
+    "pydantic-settings==2.15.0",
+    "sqlalchemy==2.1.4",
+    "psycopg[binary]==3.3.6",
+    "pgvector==0.5.1",
+    "alembic==1.20.0",
+    # Generic OpenAI-compatible client. The architecture enforces an
+    # OpenAI-compatible interface across model backends so the
+    # Ollama -> vLLM -> hosted-API moves stay in config. The frontier
+    # vendor for the generator is not picked yet (see CLAUDE.md); add
+    # that vendor's own SDK before phase 3 if it needs one.
+    #
+    # Note: openai 3.x depends on `httpx2` (a separate distribution), not
+    # on `httpx`. Don't add an `httpx` runtime pin expecting to share one
+    # HTTP stack with it — you would get both.
+    "openai==3.27.0",
+    "python-multipart==0.0.32",  # file uploads through FastAPI
+    "pyyaml==6.0.3",             # evaluation set is YAML
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "httpx==0.28.1",             # required by FastAPI's TestClient
+    "ruff==0.16.10",
+    "mypy==2.4.0",
+]
+
+[build-system]
+requires = ["setuptools>=70"]
+build-backend = "setuptools.build_meta"
+
+# Without this, flat-layout auto-discovery treats `alembic/` and the
+# `Documents/` corpus as importable packages and refuses to build.
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
