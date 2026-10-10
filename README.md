@@ -48,9 +48,14 @@ The two pipelines are deliberately separate: ingestion is slow and heavy
 infrastructure means an upload spike degrades live queries at exactly the
 moment the product is supposed to be real-time.
 
-## Setup
+## Setup in VS Code
 
-Requires **Python 3.11+**. No GPU, no Docker, no database needed to run it.
+Requires **Python 3.11+** and Git. No GPU, no Docker, no database.
+
+**1. Clone it.** `Ctrl+Shift+P` → `Git: Clone` → paste the repository URL →
+choose a folder → **Open** when prompted.
+
+**2. Open the terminal** with ``Ctrl+` `` and run:
 
 ```bash
 python -m venv .venv
@@ -60,21 +65,39 @@ python -m venv .venv
 python scripts/setup.py
 ```
 
-That installs dependencies, downloads the two models (~2.5 GB, once),
-builds the search index from `Documents/`, and smoke-tests retrieval.
-It is safe to re-run — every step skips work already done, so an
-interrupted download resumes.
+When VS Code asks *"We noticed a new virtual environment, select it for
+the workspace?"* — say yes.
 
-Then:
+The first run takes 10–20 minutes: it installs PyTorch and downloads
+~2.5 GB of models. It prints each step, and is safe to re-run if the
+connection drops — completed steps are skipped.
+
+**3. Start it:**
 
 ```bash
 python -m uvicorn app.main:app --port 8000
 ```
 
-and open <http://127.0.0.1:8000>. First start loads the models into
-memory and takes about a minute.
+Wait for `Application startup complete` — about a minute while the
+models load into memory — then Ctrl+click the
+<http://127.0.0.1:8000> link in the terminal.
 
-### The API key
+Check `python --version` first if setup complains; 3.10 and earlier
+will not work.
+
+## What setup.py does
+
+Installs dependencies, downloads the embedder and reranker (~2.5 GB,
+once), builds the search index from the PDFs in `Documents/`, and
+smoke-tests retrieval end to end. Every step checks whether it is
+already done, so re-running after an interrupted download resumes
+rather than starting over.
+
+It fetches only the weight format actually used. Left to itself the
+library pulls safetensors, PyTorch and ONNX copies of the same model,
+which is roughly 9 GB instead of 2.5.
+
+## The API key
 
 Everything except the written answer runs locally and free. Only the
 generator calls an API.
