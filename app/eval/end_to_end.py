@@ -43,9 +43,15 @@ from app.query.verify import _scan
 
 ROOT = Path(__file__).resolve().parents[2]
 
-# Groq free tier is ~30 requests/minute. One call per question plus
-# headroom keeps us under it without a retry loop.
-THROTTLE_SECONDS = 2.2
+# MEASURED from x-ratelimit headers, not estimated: the free tier
+# allows 1,000 requests/day but only 8,000 TOKENS PER MINUTE.
+# Each question sends five passages plus the system prompt, roughly
+# 2,500 tokens, so the sustainable rate is about three per minute —
+# far below the 30 requests/minute the request limit suggests. Pacing
+# to that avoids 429s entirely, which matters more than speed here:
+# a rate-limited call falls back to retrieval-only and is recorded as
+# an unanswered question, quietly understating the answer rate.
+THROTTLE_SECONDS = 22.0
 
 
 @dataclass
@@ -95,6 +101,34 @@ def judge(expected: str, produced: str) -> tuple[bool, list[str]]:
     return overlap >= 0.4, [] if overlap >= 0.4 else ["low keyword overlap"]
 
 
+PARTIAL = ROOT / ".cache" / "phase3_partial.jsonl"
+
+
+def _completed() -> dict[str, dict]:
+    """Rows already answered in an earlier run, keyed by question id.
+
+    A full run is ~25 minutes of API calls against a rate-limited free
+    tier. Losing all of it to one stall is the difference between an
+    evaluation that gets re-run on every change and one that does not.
+    """
+    if not PARTIAL.exists():
+        return {}
+    done = {}
+    for line in PARTIAL.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        # A retrieval_only row means the generator was rate-limited, not
+        # that the system declined to answer. Treating it as complete
+        # would bake a quota failure into the accuracy figure, so it is
+        # left out and retried on the next run.
+        if row["outcome"] == "retrieval_only":
+            done.pop(row["qid"], None)
+            continue
+        done[row["qid"]] = row
+    return done
+
+
 def run(pipeline: QueryPipeline, limit: int | None = None) -> tuple[list[Row], AnswerReport]:
     eval_set = load()
     questions: list[Answerable | Abstention] = [
@@ -106,9 +140,27 @@ def run(pipeline: QueryPipeline, limit: int | None = None) -> tuple[list[Row], A
 
     rows: list[Row] = []
     outcomes: list[AnswerOutcome] = []
+    done = _completed()
+    if done:
+        print(f"  resuming — {len(done)} questions already answered", flush=True)
+    PARTIAL.parent.mkdir(parents=True, exist_ok=True)
 
     for n, q in enumerate(questions, start=1):
         in_scope = isinstance(q, Answerable)
+
+        if q.id in done:
+            cached = done[q.id]
+            rows.append(Row(**cached))
+            outcomes.append(
+                AnswerOutcome(
+                    question_id=q.id,
+                    answered=cached["answered"],
+                    correct=cached.get("values_ok"),
+                    should_have_answered=in_scope,
+                )
+            )
+            continue
+
         result = pipeline.run(q.question)
         answered = result.outcome is Outcome.ANSWERED
 
@@ -132,6 +184,8 @@ def run(pipeline: QueryPipeline, limit: int | None = None) -> tuple[list[Row], A
                     p.document == q.expected_source.document for p in result.passages
                 )
         rows.append(row)
+        with PARTIAL.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row.__dict__) + "\n")
         outcomes.append(
             AnswerOutcome(
                 question_id=q.id,
@@ -171,6 +225,19 @@ def main() -> None:
     from app.query.retrieve import InMemoryIndex
 
     weights = str(ROOT / "models" / "weights")
+
+    # A batch job can afford to wait out a rate limit; a user at a
+    # stalled job cannot. The live pipeline caps retry-after at 30s and
+    # falls back to retrieval-only, which is right for a query and wrong
+    # here — a rate-limited call would be recorded as an unanswered
+    # question and quietly understate the answer rate.
+    generator = ApiGenerator(
+        os.environ["GENERATOR_MODEL"],
+        os.environ["GROQ_API_KEY"],
+        os.environ["GROQ_BASE_URL"],
+    )
+    generator.MAX_RETRY_SLEEP = 120.0
+
     corpus = read_corpus()
     index = InMemoryIndex()
     index.add(corpus.chunks, corpus.vectors)
@@ -179,11 +246,7 @@ def main() -> None:
         index=index,
         embedder=LocalEmbedder(cache_dir=weights),
         reranker=LocalReranker(os.environ["RERANKER_MODEL"], cache_dir=weights),
-        generator=ApiGenerator(
-            os.environ["GENERATOR_MODEL"],
-            os.environ["GROQ_API_KEY"],
-            os.environ["GROQ_BASE_URL"],
-        ),
+        generator=generator,
         score_floor=float(os.environ.get("RETRIEVAL_SCORE_FLOOR", "-5.0")),
         show_sources_floor=float(os.environ.get("SHOW_SOURCES_FLOOR", "-8.0")),
     )

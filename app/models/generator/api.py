@@ -92,13 +92,19 @@ class RateLimited(GeneratorError):
     retry_after: float | None = None
 
 
-MAX_PASSAGE_CHARS = 1800
+MAX_PASSAGE_CHARS = 1000
 """Per-passage cap sent to the generator.
 
 Chunks run up to ~9,600 characters in this corpus, and five of those
 exceeds the free tier's tokens-per-minute allowance outright — the API
-returns 413 and the query degrades to sources-only. Truncating keeps
-the request inside the budget.
+returns 413 and the query degrades to sources-only.
+
+1,000 is sized against the measured limit (8,000 tokens/minute) rather
+than chosen for elegance: five passages at this cap plus the system
+prompt is roughly 1,650 tokens, which sustains about four queries a
+minute with headroom. It costs little, because the median chunk in
+this corpus is 664 characters and is not truncated at all — only the
+longest tenth is affected.
 
 Warnings are appended AFTER the truncation point rather than being cut
 with the rest of the text: losing the body of a passage costs detail,
@@ -166,8 +172,19 @@ class ApiGenerator:
         except Exception as exc:
             raise GeneratorError(f"{type(exc).__name__}: {exc}") from exc
 
+    MAX_RETRY_SLEEP = 30.0
+    """Ceiling on a server-supplied retry-after.
+
+    `retry-after` is a number the provider chooses, and honouring it
+    without a bound means an outside party can stall the process for as
+    long as it likes. A 104-question evaluation run hung for minutes on
+    a single long value with no log line and no CPU activity, which
+    looks like a crash rather than a wait. Past this ceiling, fail and
+    let the caller fall back to retrieval-only.
+    """
+
     def _post_with_retry(self, payload: dict, attempts: int = 3) -> dict:
-        """Retry on rate limiting, honouring retry-after.
+        """Retry on rate limiting, honouring retry-after up to a cap.
 
         The free tier is ~30 requests/minute, and an evaluation run of a
         hundred questions will hit it. Giving up on the first 429 makes
@@ -181,7 +198,8 @@ class ApiGenerator:
             except RateLimited as exc:
                 if attempt == attempts - 1:
                     raise
-                time.sleep(exc.retry_after or delay)
+                wait = min(exc.retry_after or delay, self.MAX_RETRY_SLEEP)
+                time.sleep(wait)
                 delay *= 2
         raise GeneratorError("unreachable")
 
