@@ -94,6 +94,67 @@ re-embedding the whole corpus. Extracted text and chunk boundaries are
 stored separately from the vectors from day one, making that a batch
 re-embed rather than a re-parse of every document.
 
+## Measured findings that correct the architecture
+
+These came out of running the evaluation set. Each contradicts
+something the PDF assumes, and each cost real time to discover.
+
+**The score floor cannot carry abstention.** Section 7 treats the
+retrieval score floor as tier 1, the deterministic gate that refuses
+before generating. Calibrated against the eval set, answerable and
+out-of-scope questions score almost identically — medians 2.17 and 1.62
+on MiniLM, with overlapping ranges. No threshold separates them. The
+floor is now a loose backstop at -9.0; abstention is carried by the
+generator (tier 2) and verification (tier 3), both of which work.
+
+**Verification checks provenance, not relevance.** Tier 3 confirms every
+figure came from a retrieved document, and does that correctly. It
+cannot tell whether the figure answers the question. All 8 genuine
+errors in the first full run were correctly-quoted values from the
+wrong subject: the SEM-IP temperature for the SEM, the ZBUS device
+limit for the R-ABUS, the ward supply current for the bed terminals.
+Correctly-quoted wrong values are the more common dangerous failure,
+not invented ones.
+
+**Safety warnings are pictograms here.** No "WARNING:" string appears
+anywhere in this corpus — the legend on page 2 of several manuals
+defines them as images. Warning detection is layout-based (triangle
+vector glyph beside indented text). A keyword chunker would report
+every chunk safe and silently break the system's core guarantee.
+
+**The reranker in section 6 is unusable on CPU.** bge-reranker-v2-m3
+takes 42 seconds per query against its own 250ms budget. bge-reranker-
+base takes 11s and scores *worse*. ms-marco-MiniLM-L6-v2 (22M params)
+beats both on accuracy and runs in 2.1s. Caveat: MiniLM is English-only
+and the corpus has untranslated German, which the English-only eval set
+cannot detect.
+
+**Free-tier limits are tokens, not requests.** Groq allows 1,000
+requests/day but only 8,000 tokens/minute, and the token limit binds
+first: roughly three questions a minute. Limits are per organisation,
+not per key. Batch and interactive callers therefore need different
+patience: the eval waits out a 429, a live query fails to sources in
+~2s rather than making someone wait 57 seconds for nothing.
+
+**Accuracy: 0.862, not 0.603.** The end-to-end judge marks an answer
+wrong if any expected figure is missing, which conflates omission with
+error. `python -m app.eval.audit` separates them. Report the
+contradiction-only figure and say which one it is.
+
+## Known limitations, recorded deliberately
+
+- Retrieval does not reliably surface the right product's document.
+  For "what temperature range can the SEM work in", all five passages
+  came from the SEM-IP manual. Entity-aware scoring (app/query/
+  entities.py) demotes siblings but cannot promote a document that was
+  never retrieved.
+- Some headings sit inside table blocks, swallowed by the table
+  extractor. `_recover_headings` in the chunker catches paragraph-level
+  misses (56 across the corpus) but not these.
+- 6 of 70 eval quotes cannot be matched against the parser's text at
+  all — a different PDF tool wrote them. Measure retrieval against that
+  0.914 ceiling, not 1.0.
+
 ## Build order (phases 0–4 = MVP)
 
 0. **Evaluation set** — 80–120 real questions with known answers. Nothing
