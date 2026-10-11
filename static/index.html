@@ -366,12 +366,26 @@ function renderReply(d, turnIdx){
   const out=[];
   if(d.answer){ out.push(`<div class="answer">${renderAnswer(d.answer, turnIdx)}</div>`); }
   else {
-    const nothing=!d.passages.length;
-    out.push(`<div class="refusal"><strong>${nothing
-      ? "I don't have documentation on that."
-      : 'Not confident enough to answer.'}</strong><p>${nothing
-      ? 'The indexed manuals don\'t cover this. I only answer installation and commissioning questions — for anything else, contact technical support.'
-      : 'Here are the closest sections. Read them and verify before acting.'}</p></div>`);
+    // Say which thing actually happened. Every answerless outcome used
+    // to render as "not confident enough", which blamed the system's
+    // judgement for what was usually a quota failure — and that is the
+    // one claim this product cannot afford to get wrong, since its
+    // whole case rests on refusing only when it genuinely should.
+    let head, body;
+    if (d.outcome === 'retrieval_only') {
+      head = "Couldn't write an answer just now.";
+      body = 'The answer service was unreachable or rate-limited. The sections below are still the right ones — this is not a judgement about the question.';
+    } else if (d.outcome === 'rejected_by_verification') {
+      head = 'An answer was written, then rejected.';
+      body = 'A figure or citation in it could not be traced back to a source, so it is not being shown. Read the sections below instead.';
+    } else if (!d.passages.length) {
+      head = "I don't have documentation on that.";
+      body = 'The indexed manuals don\'t cover this. I only answer installation and commissioning questions — for anything else, contact technical support.';
+    } else {
+      head = 'Not confident enough to answer.';
+      body = 'Here are the closest sections. Read them and verify before acting.';
+    }
+    out.push(`<div class="refusal"><strong>${head}</strong><p>${body}</p></div>`);
   }
   if(d.passages.length){
     out.push(`<details class="src"${d.answer?'':' open'}>

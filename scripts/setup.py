@@ -54,25 +54,28 @@ def check_python() -> None:
 
 
 def install_deps() -> None:
+    # Probe the packages the later steps actually import, not just one.
+    # A partial environment used to pass this check and then fail at
+    # step 5 with a bare ModuleNotFoundError, which looks like a broken
+    # repository rather than an unfinished install.
     try:
         import fastapi  # noqa: F401
+        import numpy  # noqa: F401
+        import pdfplumber  # noqa: F401
+        import pypdf  # noqa: F401
         import sentence_transformers  # noqa: F401
+        import yaml  # noqa: F401
 
         ok("dependencies already installed")
         return
-    except ImportError:
-        pass
+    except ImportError as exc:
+        print(f"      missing {exc.name} — installing", flush=True)
     print("      installing (this pulls PyTorch — several minutes)…", flush=True)
     result = subprocess.run(
         [sys.executable, "-m", "pip", "install", "-e", ".[dev]"], cwd=ROOT
     )
     if result.returncode:
         fail("pip install failed — see the output above")
-    subprocess.run(
-        [sys.executable, "-m", "pip", "install", "sentence-transformers==6.1.0"],
-        cwd=ROOT,
-        check=False,
-    )
     ok("dependencies installed")
 
 

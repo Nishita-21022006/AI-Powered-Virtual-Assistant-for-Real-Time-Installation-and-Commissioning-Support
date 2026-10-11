@@ -237,6 +237,7 @@ def main() -> None:
         os.environ["GROQ_BASE_URL"],
     )
     generator.MAX_RETRY_SLEEP = 120.0
+    generator.retry_attempts = 4
 
     corpus = read_corpus()
     index = InMemoryIndex()

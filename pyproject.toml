@@ -30,6 +30,20 @@ dependencies = [
     "openai==3.27.0",
     "python-multipart==0.0.32",  # file uploads through FastAPI
     "pyyaml==6.0.3",             # evaluation set is YAML
+
+    # PDF parsing. pdfplumber gives per-word geometry and font data,
+    # which is what the layout-based warning detection needs — in this
+    # corpus a safety warning is a pictogram with no text marker, so
+    # there is nothing to match on without it. pypdf handles the
+    # open/encryption/corruption gate. PyMuPDF was rejected: faster,
+    # but AGPL, and this is a commercial product.
+    "pdfplumber==0.11.10",
+    "pypdf==6.20.0",
+
+    # Embedder and reranker run locally on CPU. This pulls PyTorch,
+    # which is most of the install time on a fresh machine.
+    "sentence-transformers==6.1.0",
+    "numpy==2.5.4",
 ]
 
 [project.optional-dependencies]

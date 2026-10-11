@@ -137,6 +137,7 @@ class ApiGenerator:
         base_url: str,
         timeout: float = 60.0,
         max_tokens: int = 400,
+        retry_attempts: int = 1,
     ):
         self.name = model
         self.model = model
@@ -144,6 +145,13 @@ class ApiGenerator:
         self._base = base_url.rstrip("/")
         self._timeout = timeout
         self._max_tokens = max_tokens
+        # One attempt by default. A rate-limited retry against this
+        # provider was measured at ~17s per round trip, so three
+        # attempts turned a 2-second setback into a 57-second wait that
+        # ended with no answer anyway. An installer with a stalled job
+        # is better served by the sources in two seconds. Batch callers
+        # raise this - see app/eval/end_to_end.py.
+        self.retry_attempts = retry_attempts
 
     def _post(self, payload: dict) -> dict:
         request = urllib.request.Request(
@@ -183,7 +191,7 @@ class ApiGenerator:
     let the caller fall back to retrieval-only.
     """
 
-    def _post_with_retry(self, payload: dict, attempts: int = 3) -> dict:
+    def _post_with_retry(self, payload: dict, attempts: int | None = None) -> dict:
         """Retry on rate limiting, honouring retry-after up to a cap.
 
         The free tier is ~30 requests/minute, and an evaluation run of a
@@ -191,6 +199,7 @@ class ApiGenerator:
         the whole query degrade to sources-only, which reads as a
         quality problem rather than a quota one.
         """
+        attempts = attempts if attempts is not None else self.retry_attempts
         delay = 2.0
         for attempt in range(attempts):
             try:
