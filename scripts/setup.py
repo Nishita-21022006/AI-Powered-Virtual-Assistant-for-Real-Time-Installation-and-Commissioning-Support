@@ -34,6 +34,10 @@ ALLOW = ["*.json", "*.txt", "*.md", "*.safetensors", "*.model", "tokenizer*", "*
 IGNORE = ["*.onnx", "*.onnx_data", "onnx/*", "openvino/*", "*.bin", "*.h5", "*.ckpt"]
 
 
+NEW_SETTINGS_HEADER = (
+    chr(10) + chr(10) + "# --- added by setup.py from .env.example ---" + chr(10)
+)
+
 def step(n: int, total: int, text: str) -> None:
     print(f"\n[{n}/{total}] {text}", flush=True)
 
@@ -95,10 +99,70 @@ def fetch(repo: str) -> None:
 def write_env() -> None:
     env = ROOT / ".env"
     if env.exists():
-        ok(".env already present")
+        # Merge in keys added to .env.example since this .env was made.
+        # Skipping an existing file entirely left early adopters running
+        # on a stale config - an old reranker and a score floor from a
+        # different scale - which looks like the assistant behaving
+        # badly rather than like missing settings. Existing values are
+        # never touched: the user's own keys and tuning survive.
+        example = (ROOT / ".env.example").read_text(encoding="utf-8")
+        current = env.read_text(encoding="utf-8")
+        have = {
+            line.split("=", 1)[0].strip()
+            for line in current.splitlines()
+            if "=" in line and not line.strip().startswith("#")
+        }
+        missing = [
+            line
+            for line in example.splitlines()
+            if "=" in line
+            and not line.strip().startswith("#")
+            and line.split("=", 1)[0].strip() not in have
+        ]
+        if missing:
+            with env.open("a", encoding="utf-8") as fh:
+                fh.write(NEW_SETTINGS_HEADER)
+                fh.write(chr(10).join(missing) + chr(10))
+            ok(f".env updated — added {len(missing)} new setting(s)")
+            for line in missing:
+                print(f"         {line.split('=', 1)[0].strip()}", flush=True)
+        else:
+            ok(".env already present and up to date")
     else:
         env.write_text((ROOT / ".env.example").read_text(encoding="utf-8"), encoding="utf-8")
         ok("created .env from .env.example")
+
+    # Warn when a value differs from the template's default on a setting
+    # that changes behaviour. Merging only ADDS keys, so a .env created
+    # before a default changed keeps the old value silently - which is
+    # how someone ends up running a 42-second reranker and a score floor
+    # from a different scale, and concluding the assistant is bad.
+    CRITICAL = ("RERANKER_MODEL", "RETRIEVAL_SCORE_FLOOR", "GENERATOR_MODEL")
+    defaults = {
+        line.split("=", 1)[0].strip(): line.split("=", 1)[1].strip()
+        for line in (ROOT / ".env.example").read_text(encoding="utf-8").splitlines()
+        if "=" in line and not line.strip().startswith("#")
+    }
+    mine = {
+        line.split("=", 1)[0].strip(): line.split("=", 1)[1].strip()
+        for line in env.read_text(encoding="utf-8").splitlines()
+        if "=" in line and not line.strip().startswith("#")
+    }
+    stale = [
+        k for k in CRITICAL
+        if k in mine and k in defaults and mine[k] and mine[k] != defaults[k]
+    ]
+    if stale:
+        print("")
+        print("      YOUR .env DIFFERS FROM THE RECOMMENDED DEFAULTS:", flush=True)
+        for k in stale:
+            print(f"         {k}={mine[k]}", flush=True)
+            print(f"            recommended: {defaults[k]}", flush=True)
+        print(
+            "      If you did not change these deliberately, delete .env "
+            "and re-run to pick up the current defaults.",
+            flush=True,
+        )
 
     text = env.read_text(encoding="utf-8")
     has_key = any(

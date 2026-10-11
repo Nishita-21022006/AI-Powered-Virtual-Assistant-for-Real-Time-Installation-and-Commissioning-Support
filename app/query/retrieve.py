@@ -31,10 +31,23 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
+from app.query.entities import agreement, detect
+
 RRF_K = 60
 """Rank-fusion damping. The standard value; it flattens the difference
 between ranks 1 and 2 enough that one engine cannot dominate on a
 single confident hit."""
+
+ENTITY_WEIGHT = 0.02
+"""How hard entity agreement moves a fused score.
+
+Sized against the RRF spread: with k=60 a rank-1 hit scores ~0.0164 per
+engine, so 0.02 is enough to lift a correct-subject passage past an
+incorrect-subject one, and enough to push a sibling's passage out of
+the top 5 entirely. Anything much smaller is decorative; much larger
+and entity matching overrides relevance, promoting a passage that
+merely names the right product over one that answers the question.
+"""
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+(?:[-/.][a-z0-9]+)*")
 
@@ -66,6 +79,7 @@ class Scored:
     score: float
     dense_rank: int | None = None
     lexical_rank: int | None = None
+    entity_agreement: float = 0.0
 
 
 @dataclass
@@ -166,6 +180,24 @@ class InMemoryIndex:
         for idx, rank in lexical_rank.items():
             fused[idx] = fused.get(idx, 0.0) + 1.0 / (RRF_K + rank)
 
+        # Entity agreement, applied after fusion rather than as a filter.
+        #
+        # A hard filter would be wrong: the question's product may be
+        # named only in a section heading the chunk does not repeat, and
+        # dropping every passage that fails to say "SEM" would lose
+        # correct answers. A score adjustment demotes a sibling's page
+        # without discarding it, so it can still surface when nothing
+        # better exists — and the generator, which also now checks the
+        # subject, gets the last word.
+        asked = detect(query)
+        agreements: dict[int, float] = {}
+        if asked:
+            for idx in fused:
+                a = agreement(asked, detect(self.chunks[idx].text))
+                if a:
+                    agreements[idx] = a
+                    fused[idx] += ENTITY_WEIGHT * a
+
         best = sorted(fused.items(), key=lambda kv: -kv[1])[:limit]
         return [
             Scored(
@@ -173,6 +205,7 @@ class InMemoryIndex:
                 score=score,
                 dense_rank=dense_rank.get(idx),
                 lexical_rank=lexical_rank.get(idx),
+                entity_agreement=agreements.get(idx, 0.0),
             )
             for idx, score in best
         ]
