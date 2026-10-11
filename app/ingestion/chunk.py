@@ -123,10 +123,59 @@ def _is_step(block: Block) -> bool:
     return bool(_STEP_RE.match(block.text) or _IMPERATIVE_RE.match(block.text))
 
 
+# A numbered heading that the parser left as a paragraph: "7.
+# Specifications", "4.2 Commissioning". Short, starts with a section
+# number, no sentence-ending punctuation.
+_MISSED_HEADING_RE = re.compile(r"^(\d+(?:\.\d+)*)\.?\s+([A-Z][^.!?]{2,60})$")
+
+
+def _recover_headings(blocks: list[Block]) -> list[Block]:
+    """Promote heading-looking paragraphs to headings.
+
+    Structure-aware chunking is only as good as the structure the parser
+    can see, and it detects headings by font weight and size. One manual
+    in this corpus is a draft with inconsistent formatting, so real
+    headings come through as ordinary paragraphs — and a section's
+    content then runs on into the next one.
+
+    The cost is concrete: a technical-specifications table ended up
+    inside a chunk titled "Separate cancel push-button for bed", and a
+    reranker reading that chunk against "what temperature range" quite
+    reasonably scored it as off-topic. The passage was retrieved at
+    rank 1 and dropped before it reached the model.
+
+    Recovering the numbering is a second, weaker signal for the same
+    thing. Conservative on purpose: a numbered line is only promoted
+    when it is short and reads like a title, so a step like
+    "3. Tighten the four screws to 2.5 Nm." is left alone.
+    """
+    out: list[Block] = []
+    for block in blocks:
+        match = (
+            _MISSED_HEADING_RE.match(block.text.strip())
+            if block.type == "paragraph"
+            else None
+        )
+        if match and not _is_step(block):
+            out.append(
+                Block(
+                    type="heading",
+                    text=match.group(2).strip(),
+                    page=block.page,
+                    bbox=block.bbox,
+                    level=match.group(1).count(".") + 1,
+                    section_number=match.group(1),
+                )
+            )
+        else:
+            out.append(block)
+    return out
+
+
 def _sections(doc: ParsedDocument) -> list[_Section]:
     sections: list[_Section] = []
     current = _Section(heading=None)
-    for block in doc.blocks:
+    for block in _recover_headings(doc.blocks):
         if block.type == "heading":
             if current.blocks or current.heading:
                 sections.append(current)
