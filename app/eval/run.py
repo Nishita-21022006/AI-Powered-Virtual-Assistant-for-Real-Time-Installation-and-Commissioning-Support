@@ -45,7 +45,9 @@ class BuiltCorpus:
 
 
 def build_corpus(
-    include_catalog: bool = False, embedder: LocalEmbedder | None = None
+    include_catalog: bool = False,
+    embedder: LocalEmbedder | None = None,
+    progress: bool = False,
 ) -> BuiltCorpus:
     embedder = embedder or LocalEmbedder(cache_dir=str(ROOT / "models" / "weights"))
     paths = sorted(p for p in CORPUS_DIR.glob("*.pdf"))
@@ -55,7 +57,9 @@ def build_corpus(
     chunks: list[IndexedChunk] = []
     stats: dict = {"documents": {}, "failed": {}}
 
-    for path in paths:
+    for n, path in enumerate(paths, start=1):
+        if progress:
+            print(f"      [{n}/{len(paths)}] parsing {path.name}…", flush=True)
         started = time.time()
         try:
             doc = parse_pdf(path, extract_figure_images=False)
@@ -82,7 +86,23 @@ def build_corpus(
             "parse_seconds": round(time.time() - started, 1),
         }
 
-    vectors = embedder.embed_documents_sync([c.text for c in chunks], batch_size=8)
+    # Embedding is the long pole — several minutes on CPU — and without
+    # a progress line the setup script looks hung at exactly the point a
+    # first-time user is least sure it is working.
+    if progress:
+        print(
+            f"      embedding {len(chunks)} passages on CPU "
+            f"(the slow part, ~5 min)…",
+            flush=True,
+        )
+    texts = [c.text for c in chunks]
+    vectors: list[list[float]] = []
+    step = 32
+    for i in range(0, len(texts), step):
+        vectors.extend(embedder.embed_documents_sync(texts[i : i + step], batch_size=8))
+        if progress:
+            done = min(i + step, len(texts))
+            print(f"         {done}/{len(texts)} embedded", flush=True)
     return BuiltCorpus(chunks=chunks, vectors=vectors, model=embedder.name, stats=stats)
 
 
@@ -139,12 +159,14 @@ def read_corpus(path: Path = CACHE) -> BuiltCorpus | None:
     )
 
 
-def load_or_build(rebuild: bool = False, include_catalog: bool = False) -> BuiltCorpus:
+def load_or_build(
+    rebuild: bool = False, include_catalog: bool = False, progress: bool = False
+) -> BuiltCorpus:
     if not rebuild:
         cached = read_corpus()
         if cached is not None:
             return cached
-    corpus = build_corpus(include_catalog=include_catalog)
+    corpus = build_corpus(include_catalog=include_catalog, progress=progress)
     save_corpus(corpus)
     return corpus
 

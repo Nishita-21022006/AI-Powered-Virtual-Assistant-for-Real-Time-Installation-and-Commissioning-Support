@@ -126,8 +126,12 @@ def build_index() -> None:
     if not any((ROOT / "Documents").glob("*.pdf")):
         print("      no PDFs in Documents/ — skipping. Upload them in the UI.", flush=True)
         return
-    print("      parsing and embedding the manuals (a few minutes)…", flush=True)
-    corpus = build_corpus()
+    print(
+        "      parsing and embedding the manuals. This is the slowest step:\n"
+        "      5 to 10 minutes on a laptop CPU. Progress below.",
+        flush=True,
+    )
+    corpus = build_corpus(progress=True)
     save_corpus(corpus)
     ok(f"{len(corpus.chunks)} passages indexed -> {CACHE.parent}")
 
