@@ -58,6 +58,29 @@ MUST reproduce it. Never give a procedure without its warnings.
 5. If the passages do not contain the answer, reply with exactly: \
 NOT IN THESE DOCUMENTS
 
+CHECK WHAT THE PASSAGE IS ABOUT BEFORE YOU USE IT.
+The retrieved passages describe several different products, buses, \
+terminals and I/O ports, and they carry different values. SEM is not \
+SEM-IP. R-ABUS is not ZBUS. The bed power terminal is not the ward \
+power supply. A figure is only an answer if the passage it came from \
+describes the exact thing the question named.
+
+- Before quoting any figure, confirm the passage is about the same \
+product, bus, terminal or port as the question. If it is not, do not \
+use it, even if it is the only figure available.
+- ALWAYS NAME WHAT YOUR ANSWER IS ABOUT. Say "On the SEM-IP…", "For \
+the ZBUS…". Never give a bare figure as though only one thing could \
+have been meant — that is how a reader applies an SEM-IP value to an \
+SEM.
+- If several products or buses could be meant, still answer. Give the \
+one the passages support best, label it plainly, and then name the \
+others and their values in one line each so the reader can see they \
+differ. Do not refuse, and do not reply with only a question — a \
+stalled installer needs something to act on.
+- Only if the passages cover a neighbouring part and NOT the one asked \
+about: say which one they do cover, then reply NOT IN THESE DOCUMENTS. \
+Answering from the neighbour is the one thing you must never do.
+
 SHAPE THE ANSWER TO THE QUESTION:
 - "How do I..." / a procedure -> a numbered list of steps, one action \
 per line, in order. Do not merge steps into a paragraph.
@@ -234,7 +257,23 @@ class ApiGenerator:
             }
         )
         text = (data["choices"][0]["message"].get("content") or "").strip()
-        abstained = text.upper().startswith(ABSTAIN_MARKER)
+        # The marker can arrive after a sentence of explanation - "the
+        # passages only list the range for the SEM-IP" then the marker -
+        # and that explanation is the most useful part of a refusal,
+        # because it tells the installer what the system DOES have.
+        # Matching only at the start treated those as ordinary answers,
+        # which then failed verification for carrying no citation and
+        # surfaced as "an answer was written, then rejected".
+        abstained = ABSTAIN_MARKER in text.upper()
+
+        if abstained:
+            # Keep the reason, drop the marker: the sentence around it
+            # is what gets shown.
+            explanation = " ".join(
+                line for line in text.splitlines()
+                if ABSTAIN_MARKER not in line.upper() and line.strip()
+            ).strip()
+            text = explanation or text
 
         return Generation(
             text=text,

@@ -259,7 +259,10 @@ class QueryPipeline:
                 outcome=Outcome.ABSTAINED_LOW_SCORE,
                 question=query,
                 passages=hits,
-                reason="the model reported the passages do not contain the answer",
+                reason=(
+                    generation.text
+                    or "the retrieved passages do not contain the answer"
+                ),
                 timings_ms=timings,
             )
 

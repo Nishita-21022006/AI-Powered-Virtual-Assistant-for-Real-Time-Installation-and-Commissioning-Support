@@ -231,6 +231,24 @@ class _Identifier:
 
 _LIST_ORDINAL_RE = re.compile(r"^[ \t]*(?:\d{1,2}[.)]|[-•*])[ \t]+", re.MULTILINE)
 
+# A document name or page reference is a pointer to a source, not a
+# claim about the equipment. Outside brackets they were scanned as
+# content, so an answer mentioning "89470J6.GB0.pdf p27" in prose was
+# rejected for stating figures absent from its sources — the source
+# being the very document it was naming.
+#
+# The page pattern is deliberately lowercase-only: `p27` is a page,
+# `P12` is a parameter name in this corpus and must still be checked.
+_DOC_REF_RE = re.compile(
+    r"\b[\w.-]+\.pdf\b"
+    r"|\b\d{5}[A-Z]\d[A-Z0-9.]*\b"
+    r"|\bp\.?\s?\d{1,3}\b"
+)
+
+
+def _strip_document_refs(text: str) -> str:
+    return _DOC_REF_RE.sub(" ", text)
+
 
 def _strip_list_ordinals(text: str) -> str:
     """Remove "1. " / "2) " / "- " at the start of a line.
@@ -354,7 +372,7 @@ def verify(
     source_numbers = {f.number for f in source_figures}
     source_ids = {i.canonical for i in source_identifiers}
 
-    body = _strip_list_ordinals(_MARKER_RE.sub(" ", answer))
+    body = _strip_document_refs(_strip_list_ordinals(_MARKER_RE.sub(" ", answer)))
     answer_figures, answer_identifiers, _ = _scan(body)
     answer_numbers = {f.number for f in answer_figures}
     answer_ids = {i.canonical for i in answer_identifiers}
